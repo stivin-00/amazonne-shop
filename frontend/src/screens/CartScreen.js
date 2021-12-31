@@ -10,7 +10,7 @@ export default function CartScreen(props) {
     ? Number(props.location.search.split('=')[1])
     : 1;
   const cart = useSelector((state) => state.cart);
-  const { cartItems } = cart;
+  const { cartItems, error } = cart;
   const dispatch = useDispatch();
   useEffect(() => {
     if (productId) {
@@ -30,12 +30,76 @@ export default function CartScreen(props) {
     <div className="row top">
       <div className="col-2">
         <h1>Shopping Cart</h1>
+        {error && <MessageBox variant="danger">{error}</MessageBox>}
         {cartItems.length === 0 ? (
           <MessageBox>
             Cart is empty. <Link to="/">Go Shopping</Link>
           </MessageBox>
         ) : (
-          <ul>
+         <div style={{ overflowX: 'scrool'}}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>IMAGE</th>
+                <th>NAME</th>
+                <th>QTY</th>
+                <th>PRICE</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cartItems.map((item) => (
+                <tr key={item._id}>
+                  <td>
+                  <div>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="small"
+                    ></img>
+                  </div>
+                  </td>
+                  <td>
+                  <div className="min-10">
+                    <Link to={`/product/${item.product}`}>{item.name}</Link>
+                  </div>
+                  </td>
+                  <td>
+                  <div>
+                    <select
+                      value={item.qty}
+                      onChange={(e) =>
+                        dispatch(
+                          addToCart(item.product, Number(e.target.value))
+                        )
+                      }
+                    >
+                      {[...Array(item.countInStock).keys()].map((x) => (
+                        <option key={x + 1} value={x + 1}>
+                          {x + 1}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  </td>
+                  <td>
+                  <div>${item.price}</div>
+                  </td>
+                  <td>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => removeFromCartHandler(item.product)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* <ul>
             {cartItems.map((item) => (
               <li key={item.product}>
                 <div className="row">
@@ -77,7 +141,8 @@ export default function CartScreen(props) {
                 </div>
               </li>
             ))}
-          </ul>
+          </ul> */}
+          </div>
         )}
       </div>
       <div className="col-1">

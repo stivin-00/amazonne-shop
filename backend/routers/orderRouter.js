@@ -7,8 +7,8 @@ import {
   isAdmin,
   isAuth,
   isSellerOrAdmin,
-  // mailgun,
-  // payOrderEmailTemplate,
+  mailgun,
+  payOrderEmailTemplate,
 } from '../utils.js';
 
 const orderRouter = express.Router();
@@ -137,27 +137,27 @@ orderRouter.put(
         email_address: req.body.email_address,
       };
       const updatedOrder = await order.save();
-      // try {
-      //   mailgun()
-      //     .messages()
-      //     .send(
-      //       {
-      //         from: 'Amazona <amazona@mg.yourdomain.com>',
-      //         to: `${order.user.name} <${order.user.email}>`,
-      //         subject: `New order ${order._id}`,
-      //         html: payOrderEmailTemplate(order),
-      //       },
-      //       (error, body) => {
-      //         if (error) {
-      //           console.log(error);
-      //         } else {
-      //           console.log(body);
-      //         }
-      //       }
-      //     );
-      // } catch (err) {
-      //   console.log(err);
-      // }
+      try {
+        mailgun()
+          .messages()
+          .send(
+            {
+              from: 'Amazone <amazone-shop@mg.gmail.com>',
+              to: `${order.user.name} <${order.user.email}>`,
+              subject: `New order ${order._id}`,
+              html: payOrderEmailTemplate(order),
+            },
+            (error, body) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(body);
+              }
+            }
+          );
+      } catch (err) {
+        console.log(err);
+      }
 
       res.send({ message: 'Order Paid', order: updatedOrder });
     } else {
